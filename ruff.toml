@@ -1,0 +1,109 @@
+# 기본 규칙 설정
+target-version = "py312"
+line-length = 120
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# 자동 형식 지정 설정
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = 120
+skip-magic-trailing-comma = false
+
+# 린트 설정 (이전 최상위 설정에서 옮겨짐)
+[lint]
+# 규칙 활성화
+select = [
+    "E", # pycodestyle 오류
+    "F", # pyflakes
+    "I", # isort
+    "UP", # pyupgrade
+    "N", # pep8-naming
+    "B", # flake8-bugbear
+    "A", # flake8-builtins
+    "COM", # flake8-commas (COM812 제외)
+    "C4", # flake8-comprehensions
+    "ISC", # flake8-implicit-str-concat
+    "ICN", # flake8-import-conventions
+    "PD", # pandas-vet
+    "PGH", # pygrep-hooks
+    "PIE", # flake8-pie
+    "PL", # pylint
+    "PT", # flake8-pytest-style
+    "PTH", # flake8-use-pathlib
+    "Q", # flake8-quotes
+    "RET", # flake8-return
+    "RSE", # flake8-raise
+    "RUF", # Ruff-specific rules
+    "SIM", # flake8-simplify
+    "TID", # flake8-tidy-imports
+    "UP", # pyupgrade
+    "W", # pycodestyle 경고
+]
+
+# 일부 규칙 무시
+ignore = [
+    "E203", # Black 과의 호환성을 위해 콜론 전 공백 관련 규칙 무시
+    "E266", # 여러 개의 '#' 사용 허용 (docstring 스타일)
+    "E501", # line length 는 formatter 에서 관리
+    "COM812", # formatter 와 충돌 가능성이 있는 규칙 무시
+]
+
+# 자동 수정 활성화
+fixable = ["ALL"]
+unfixable = []
+
+# 미사용 import 자동 제거
+[lint.isort]
+known-first-party = ["mypackage", "notebooks"]
+known-third-party = ["numpy", "pandas", "matplotlib", "seaborn", "sklearn"]
+
+force-single-line = false
+force-wrap-aliases = false
+combine-as-imports = true
+
+# 라인 길이 제한
+lines-after-imports = 2
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+# Jupyter Notebook 관련 특별 설정
+[lint.per-file-ignores]
+"*.ipynb" = [
+    "E402", # 모듈 레벨 임포트가 코드 맨 위에 없어도 됨 (노트북 특성상)
+    "F841", # 할당 후 사용되지 않는 변수 무시
+    "PTH123", # open() 대신 Path.open() 사용 무시
+    "RUF003", # collections.abc 모듈의 타입 사용 권장 무시
+    "PD901", # DataFrame 변수명 관련 경고 무시
+    "N806", # 대문자 변수명 무시
+    "N813", # 카멜케이스 변수명 무시
+    "PLR2004", # 매직 넘버 사용 무시
+    "RUF001", # ambiguous 문자가 포함 된 것 무시
+    "PD003", # .fillna() 사용 무시
+    "PD002", # `inplace=True` 사용 무시
+    "PD004", # .dropna() 사용 무시
+    "PD010",
+]

@@ -1,0 +1,5 @@
+_target_: transformers.AutoModel.from_pretrained
+name: distilbert-base-uncased
+model_name: distilbert-base-uncased
+use_peft: false
+peft_config: null

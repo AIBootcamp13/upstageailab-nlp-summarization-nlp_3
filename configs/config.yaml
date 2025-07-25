@@ -1,0 +1,11 @@
+defaults:
+  - model: distilbert
+  - data: default
+  - optimizer: adamw
+  - scheduler: cosine
+  - training: default
+  - _self_
+
+# 실험 관련 설정
+experiment_name: ${model.name}_lr${optimizer.learning_rate}_bs${training.batch_size}
+seed: 4321

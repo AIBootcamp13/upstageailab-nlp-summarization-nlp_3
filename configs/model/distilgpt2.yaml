@@ -1,0 +1,5 @@
+_target_: transformers.AutoModel.from_pretrained
+name: distilgpt2
+model_name: distilgpt2
+use_peft: false
+peft_config: null

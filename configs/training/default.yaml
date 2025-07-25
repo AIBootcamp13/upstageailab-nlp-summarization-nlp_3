@@ -1,0 +1,4 @@
+batch_size: 16
+epochs: 100
+warmup_steps: 100
+checkpoint_path: null
