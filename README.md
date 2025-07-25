@@ -156,13 +156,27 @@
 
 ### 데이터 준비
 
-```bash
-# 데이터 다운로드
-wget [.gz.tar 확장자의 dataset url]
+- 프로젝트의 `data/raw` 에 대회용 데이터셋을 다운로드하는 과정을 아래의 명령어를 통해 진행한다.
+    ```bash
+    cd /workspace/upstageailab-nlp-summarization-nlp_3/data
+    
+    # 데이터 다운로드
+    wget https://aistages-api-public-prod.s3.amazonaws.com/app/Competitions/000357/data/20250422073240/data.tar.gz
+    
+    # 압축 해제
+    tar -xzf data.tar.gz
+    
+    # 압축 파일 삭제
+    rm data.tar.gz
+    
+    # 압축 해제한 데이터셋 directory 이름을 raw 로 변경
+    mv data raw
+    ```
 
-# 압축 해제
-tar -xzf data.tar.gz -C data/raw/
-```
+- 위 명령어 실행 후, `ls /workspace/upstageailab-nlp-summarization-nlp_3/data/raw` 의 출력이 아래와 같으면 데이터셋 준비가 완료된 것이다.
+    ```
+    dev.csv  sample_submission.csv  test.csv  train.csv
+    ```
 
 ### EDA
 
