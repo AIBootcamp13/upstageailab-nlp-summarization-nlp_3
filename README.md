@@ -117,7 +117,7 @@
 
 1. GPU 서버에 SSH 로 로그인한 다음, 아래 명령어를 입력하여 환경 설정 스크립트 다운로드한다.
     ```bash
-    wget https://gist.githubusercontent.com/yuiyeong/8ae3f167e97aeff90785a4ccda41e5fe/raw/d5e030ea64bbd9c41ce2b4c825bc03c86f0c3dac/setup_env.sh
+    wget https://gist.githubusercontent.com/yuiyeong/8ae3f167e97aeff90785a4ccda41e5fe/raw/54e86dcb7d220422a0d7d9970f5eb2914439a826/setup_env.sh
     ```
 
 2. 다운로드 받은 스크립트를 실행 파일로 변경한다.
@@ -148,7 +148,7 @@
 
 2. 다음 명령어를 실행해서 프로젝트의 환경 설정을 마친다.
     ```bash
-    cd upstageailab-nlp-summarization-nlp_3.git # 이제 경로는 "/workspace/upstageailab-nlp-summarization-nlp_3" 이다.
+    cd upstageailab-nlp-summarization-nlp_3 # 이제 경로는 "/workspace/upstageailab-nlp-summarization-nlp_3" 이다.
 
     poetry install --with dev
     poetry run pre-commit install
