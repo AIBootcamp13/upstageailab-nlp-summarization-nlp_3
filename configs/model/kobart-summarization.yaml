@@ -1,0 +1,78 @@
+# config.yaml - 모든 설정을 하나의 파일에 통합
+defaults: []  # 개별 컴포넌트 파일 참조 제거
+
+# 데이터 설정
+data:
+  batch_size: 32
+  num_workers: 0
+
+# 모델 설정
+model:
+  model_name: digit82/kobart-summarization
+
+# 옵티마이저 설정
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 1e-05
+  weight_decay: 0.05
+
+# 콜백 설정
+callbacks:
+  early_stopping:
+    _target_: pytorch_lightning.callbacks.EarlyStopping
+    monitor: "val_loss"
+    patience: 5
+    mode: "min"
+    min_delta: 0.001
+    verbose: True
+  
+  lr_monitor:
+    _target_: pytorch_lightning.callbacks.LearningRateMonitor
+    logging_interval: "epoch"
+    log_momentum: False
+
+  model_checkpoint:
+    _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    save_top_k: 1
+    monitor: "val_loss"
+    mode: "min"
+    filename: best-{epoch:02d}-{val_loss:.3f}
+
+# 트레이너 설정
+trainer:
+  _target_: pytorch_lightning.Trainer
+  max_epochs: 10
+  accelerator: "auto"
+  num_sanity_val_steps: 2
+  predict_with_generate: True
+  generation_max_length: 100
+
+# tokenizer 설정
+tokenizer:
+  encoder_max_len: 512
+  decoder_max_len: 100
+  bos_token: "<s>"
+  eos_token: "</s>"
+  special_tokens:
+    - "#Person1#"
+    - "#Person2#"
+    - "#Person3#"
+    - "#PhoneNumber#"
+    - "#Address#"
+    - "#PassportNumber#"
+  remove_tokens:
+    - "<usr>"
+    - "<s>"      # tokenizer.bos_token
+    - "</s>"     # tokenizer.eos_token  
+    - "<pad>"    # tokenizer.pad_token    
+
+# custom 설정
+custom:
+  seed_num: 42     
+  do_test: False
+  do_checkpoint: False
+  ckpt_path: "/data/ephemeral/home/work/python/upstageailab-nlp-summarization-nlp_3/logs/nlp-summarization/l18jm56h/checkpoints/best-epoch=01-val_loss=0.692.ckpt"
+  train_file_name: "train.csv"
+  val_file_name: "dev.csv"
+  test_file_name: "test.csv"
+
