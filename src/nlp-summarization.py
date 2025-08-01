@@ -14,7 +14,7 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import WandbLogger
 from torch.utils.data import Dataset , DataLoader
 
-from transformers import AutoTokenizer, BartForConditionalGeneration, BartConfig
+from transformers import AutoTokenizer, BartForConditionalGeneration, BartConfig, PreTrainedTokenizerFast
 """ from transformers import Seq2SeqTrainingArguments, Seq2SeqTrainer
 from transformers import Trainer, TrainingArguments
 from transformers import EarlyStoppingCallback """
@@ -27,7 +27,6 @@ import hydra
 from omegaconf import DictConfig
 
 # 하이드라와 주피터 노트북은 아규먼트 관련 충돌이 발생하므로 초기화 해줌
-sys.argv = ['']
 sys.path.append('.')  
 
 from src.data.bart_summarization_dataset import get_datasets
@@ -98,6 +97,8 @@ def load_tokenizer_and_model_for_train(cfg):
     bart_config = BartConfig().from_pretrained(model_name)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     generate_model = BartForConditionalGeneration.from_pretrained(model_name,config=bart_config)
+    #tokenizer = PreTrainedTokenizerFast.from_pretrained(model_name)
+    #generate_model = BartForConditionalGeneration.from_pretrained(model_name)
 
     special_tokens_dict={'additional_special_tokens':[str(token) for token in cfg.tokenizer.special_tokens]}
     tokenizer.add_special_tokens(special_tokens_dict)
@@ -193,7 +194,8 @@ def main(cfg):
     wandb.finish()
 
 
-# poetry run python src/nlp-summarization.py
+# nohup poetry run python src/nlp-summarization.py &
+# nohup poetry run python src/nlp-summarization.py hydra.mode=MULTIRUN model.model.model_name="gogamza/kobart-base-v2","EbanLee/kobart-summary-v3" &
 if __name__ == "__main__":
 
     main()
