@@ -26,6 +26,7 @@ dependencies = [
     "deepspeed (>=0.17.2,<0.18.0)",
     "rouge (>=1.0.1,<2.0.0)",
     "ipywidgets (>=8.1.7,<9.0.0)",
+    "konlpy (>=0.6.0,<0.7.0)",
 ]
 
 [tool.poetry.group.dev.dependencies]
