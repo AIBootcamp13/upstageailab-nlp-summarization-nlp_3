@@ -55,9 +55,28 @@ class BartSummarizationModule(pl.LightningModule):
             generated_ids = self.model.generate(
                 input_ids=batch['input_ids'],
                 attention_mask=batch['attention_mask'],
-                max_length=self.cfg.trainer.generation_max_length,
-                num_beams=4,
-                early_stopping=True
+                #max_length=self.cfg.tokenizer.decoder_max_len,
+                min_new_tokens=self.cfg.tokenizer.decoder_min_len,
+                max_new_tokens=self.cfg.tokenizer.decoder_max_len,
+                num_beams=5,
+                early_stopping=True,
+                
+                # 매우 보수적 샘플링
+                do_sample=True,
+                temperature=0.6,      # 낮은 창의성, 높은 정확성
+                top_p=0.8,           # 상위 80%만 고려
+                top_k=30,            # 제한적 후보
+                
+                # 반복 최소화
+                repetition_penalty=1.1,
+                no_repeat_ngram_size=3,
+                
+                # 길이 페널티 (요약 품질 향상)
+                length_penalty=1.2,   # 적절한 길이 유도
+                
+                # 토큰 설정
+                pad_token_id=self.tokenizer.pad_token_id,
+                eos_token_id=self.tokenizer.eos_token_id
             )
             
             self.validation_outputs.append({
@@ -69,10 +88,28 @@ class BartSummarizationModule(pl.LightningModule):
     
     def test_step(self, batch, batch_idx):
         generated_ids = self.model.generate(input_ids=batch['input_ids'],
-                            no_repeat_ngram_size=3,
+                            #max_length=self.cfg.tokenizer.decoder_max_len,                    
+                            min_new_tokens=self.cfg.tokenizer.decoder_min_len,
+                            max_new_tokens=self.cfg.tokenizer.decoder_max_len,
+                            num_beams=5,
                             early_stopping=True,
-                            max_length=self.cfg.trainer.generation_max_length,
-                            num_beams=4
+                                                        
+                            # 매우 보수적 샘플링
+                            do_sample=True,
+                            temperature=0.6,      # 낮은 창의성, 높은 정확성
+                            top_p=0.8,           # 상위 80%만 고려
+                            top_k=30,            # 제한적 후보
+                            
+                            # 반복 최소화
+                            repetition_penalty=1.1,
+                            no_repeat_ngram_size=3,
+                            
+                            # 길이 페널티 (요약 품질 향상)
+                            length_penalty=1.2,   # 적절한 길이 유도
+                            
+                            # 토큰 설정
+                            pad_token_id=self.tokenizer.pad_token_id,
+                            eos_token_id=self.tokenizer.eos_token_id
                         )
          
         for ids in generated_ids:
@@ -154,6 +191,12 @@ class BartSummarizationModule(pl.LightningModule):
         print('-'*150)
         print(f"PRED: {replaced_predictions[2]}")
         print(f"GOLD: {replaced_labels[2]}")
+
+        for i in range(0, 10):
+            print('-'*150)
+            print(f"PRED: {replaced_predictions[i]}")
+            print(f"GOLD: {replaced_labels[i]}")
+
 
         # 최종적인 ROUGE 점수를 계산합니다.
         results = rouge.get_scores(replaced_predictions, replaced_labels,avg=True)

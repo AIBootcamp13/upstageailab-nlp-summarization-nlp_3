@@ -49,16 +49,17 @@ callbacks:
 # 트레이너 설정
 trainer:
   _target_: pytorch_lightning.Trainer
-  max_epochs: 10
+  max_epochs: 15
   accelerator: "auto"
   num_sanity_val_steps: 2
   predict_with_generate: True
-  generation_max_length: 400
+  #generation_max_length: 400
 
 # tokenizer 설정
 tokenizer:
-  encoder_max_len: 512
-  decoder_max_len: 100
+  encoder_max_len: 1024
+  decoder_min_len: 25
+  decoder_max_len: 55
   bos_token: "<s>"
   eos_token: "</s>"
   special_tokens:
@@ -95,9 +96,9 @@ tokenizer:
 # custom 설정
 custom:
   seed_num: 42     
-  do_test: True
-  do_checkpoint: True
-  ckpt_path: "/data/ephemeral/home/work/python/upstageailab-nlp-summarization-nlp_3/logs/nlp-summarization/67u9451h/checkpoints/best-epoch=03-val_rouge-2=0.126.ckpt"
+  do_test: False
+  do_checkpoint: False
+  ckpt_path: "/data/ephemeral/home/work/python/upstageailab-nlp-summarization-nlp_3/logs/nlp-summarization/ft1jnh8w/checkpoints/best-epoch=08-val_loss=0.537.ckpt"
   train_file_name: "train.csv"
   val_file_name: "dev.csv"
   test_file_name: "test.csv"
