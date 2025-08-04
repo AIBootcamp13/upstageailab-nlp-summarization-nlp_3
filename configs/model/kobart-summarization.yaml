@@ -86,7 +86,6 @@ tokenizer:
     - "#Liliana#" 
     - "#Person2#"
     - "#FlightNumber#"
-    - "#Bob#"   
   remove_tokens:
     - "<usr>"
     - "<s>"      # tokenizer.bos_token
