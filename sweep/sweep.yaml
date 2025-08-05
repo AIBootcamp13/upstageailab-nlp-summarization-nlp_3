@@ -1,0 +1,46 @@
+program: src/nlp-summarization.py
+method: bayes
+metric:
+  name: val_loss
+  goal: minimize
+parameters:
+  model.optimizer.lr:
+    distribution: log_uniform_values  # ✅ 변경
+    min: 0.000001                    # 1e-6
+    max: 0.001                       # 1e-3
+  model.optimizer.weight_decay:
+    distribution: log_uniform_values  # ✅ 변경
+    min: 0.0001                      # 1e-4
+    max: 0.1                         # 1e-1
+  
+  model.data.batch_size:
+    values: [8, 16, 32]
+  model.trainer.max_epochs:
+    values: [5, 10, 15]
+  model.tokenizer.encoder_max_len:
+    values: [512, 1024, 1280]
+  model.tokenizer.decoder_min_len:
+    values: [15, 25, 35]
+  model.tokenizer.decoder_max_len:
+    values: [45, 55, 65, 80]
+  model.callbacks.early_stopping.patience:
+    values: [3, 5, 7]
+  model.callbacks.early_stopping.min_delta:
+    values: [0.0001, 0.001, 0.01]
+  model.model.model_name:
+    values: [
+      "digit82/kobart-summarization",
+      "gogamza/kobart-base-v2",
+      "EbanLee/kobart-summary-v3"
+    ]
+
+command:
+  - ${env}
+  - poetry
+  - run
+  - python
+  - ${program}
+  - ${args_no_hyphens}
+
+# wandb sweep sweep/sweep.yaml
+# nohup wandb agent korea202-korea-national-open-university/upstageailab-nlp-summarization-nlp_3-src/w355yr8p > agent.log 2>&1 &

@@ -1,4 +1,5 @@
 upstageailab-nlp-summarization-nlp_3/data/
+wandb/
 logs/
 multirun/
 nohup.out

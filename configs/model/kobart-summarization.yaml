@@ -8,10 +8,10 @@ data:
 
 # 모델 설정
 model:
-  #model_name: digit82/kobart-summarization
+  model_name: digit82/kobart-summarization
   #model_name: gogamza/kobart-base-v2
   #model_name: gangyeolkim/kobart-korean-summarizer-v2  
-  model_name: EbanLee/kobart-summary-v3
+  #model_name: EbanLee/kobart-summary-v3
   
 # 옵티마이저 설정
 optimizer:
@@ -95,9 +95,9 @@ tokenizer:
 # custom 설정
 custom:
   seed_num: 41     
-  do_test: True
-  do_checkpoint: True
+  do_test: False
+  do_checkpoint: False
   ckpt_path: "/data/ephemeral/home/work/python/upstageailab-nlp-summarization-nlp_3/logs/nlp-summarization/psrs1s9x/checkpoints/best-epoch=02-val_loss=0.493.ckpt"
-  train_file_name: "new_train.csv"
+  train_file_name: "train.csv"
   val_file_name: "dev.csv"
   test_file_name: "test.csv"
