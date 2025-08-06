@@ -96,6 +96,18 @@ def load_tokenizer_and_model_for_train(cfg):
     
     bart_config = BartConfig().from_pretrained(model_name)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    """ #드롭아웃 값을 수정합니다.
+    bart_config.attention_dropout = 0.1
+    bart_config.activation_dropout = 0.1
+    bart_config.dropout = 0.15 
+
+    print("--- 수정된 Dropout 설정 ---")
+    print(f"Attention Dropout: {bart_config.attention_dropout}")
+    print(f"Activation Dropout: {bart_config.activation_dropout}")
+    print(f"General Dropout: {bart_config.dropout}")
+    print("--------------------------") """
+
     generate_model = BartForConditionalGeneration.from_pretrained(model_name,config=bart_config)
     #tokenizer = PreTrainedTokenizerFast.from_pretrained(model_name)
     #generate_model = BartForConditionalGeneration.from_pretrained(model_name)

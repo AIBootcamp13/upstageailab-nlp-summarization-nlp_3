@@ -54,11 +54,11 @@ class BartSummarizationDataset(Dataset):
     def tokenizing(self, cfg, tokenizer, is_train = True):
 
         tokenized_encoder_inputs = tokenizer(self.encoder_input_train, return_tensors="pt", padding=True,
-                                add_special_tokens=True, truncation=True, max_length=cfg.tokenizer.encoder_max_len, return_token_type_ids=False)
+                                add_special_tokens=True, truncation=True, max_length=cfg.tokenizer.encoder_max_len1, return_token_type_ids=False)
         tokenized_decoder_inputs = tokenizer(self.decoder_input_train, return_tensors="pt", padding=True,
-                            add_special_tokens=True, truncation=True, max_length=cfg.tokenizer.encoder_max_len, return_token_type_ids=False)
+                            add_special_tokens=True, truncation=True, max_length=cfg.tokenizer.encoder_max_len2, return_token_type_ids=False)
         tokenized_decoder_ouputs = tokenizer(self.decoder_output_train, return_tensors="pt", padding=True,
-                            add_special_tokens=True, truncation=True, max_length=cfg.tokenizer.encoder_max_len, return_token_type_ids=False) if is_train else None
+                            add_special_tokens=True, truncation=True, max_length=cfg.tokenizer.encoder_max_len2, return_token_type_ids=False) if is_train else None
          
         return tokenized_encoder_inputs, tokenized_decoder_inputs, tokenized_decoder_ouputs
 

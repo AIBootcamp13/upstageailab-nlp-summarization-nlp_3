@@ -3,17 +3,44 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+from sentence_transformers import SentenceTransformer
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
 import pandas as pd
+import numpy as np
 
 import hydra
 from rouge import Rouge # 모델의 성능을 평가하기 위한 라이브러리입니다.
+from peft import get_peft_model, LoraConfig, TaskType
+
 
 class BartSummarizationModule(pl.LightningModule):
     def __init__(self, cfg, model, tokenizer):
         super().__init__()
         self.cfg = cfg
+
+        """ # PEFT (LoRA) 설정 정의
+        # r: LoRA의 rank. 낮을수록 파라미터 수가 적어지며, 보통 8, 16, 32 등을 사용.
+        # lora_alpha: LoRA 스케일링 인자. 보통 r의 2배 또는 4배 값을 사용.
+        # target_modules: LoRA를 적용할 레이어 지정 (KoBART에서는 q_proj, v_proj).
+        peft_config = LoraConfig(
+            task_type=TaskType.SEQ_2_SEQ_LM,
+            inference_mode=False,
+            r=32,
+            lora_alpha=32,
+            lora_dropout=0.0,
+            target_modules=["q_proj", "v_proj"]
+        )
+
+        # get_peft_model 함수로 모델을 감싸 PEFT 모델로 변환
+        self.model = get_peft_model(model, peft_config)
+        print("*"*30)
+        print(self.model)
+        # 학습 가능한 파라미터 수와 비율 확인 (PEFT의 효과를 직접 확인)
+        self.model.print_trainable_parameters()
+        # 출력 예시: trainable params: 368,640 || all params: 124,334,208 || trainable%: 0.296...
+        print("*"*30) """
+
         self.model = model
         self.tokenizer = tokenizer
         self.save_hyperparameters(ignore=['model', 'tokenizer'])
@@ -62,17 +89,17 @@ class BartSummarizationModule(pl.LightningModule):
                 early_stopping=True,
                 
                 # 매우 보수적 샘플링
-                do_sample=True,
-                temperature=0.6,      # 낮은 창의성, 높은 정확성
-                top_p=0.8,           # 상위 80%만 고려
-                top_k=30,            # 제한적 후보
+                # do_sample=False,
+                # temperature=0.6,      # 낮은 창의성, 높은 정확성
+                # top_p=0.8,           # 상위 80%만 고려
+                # top_k=30,            # 제한적 후보
                 
                 # 반복 최소화
-                repetition_penalty=1.1,
-                no_repeat_ngram_size=3,
+                #repetition_penalty=1.1,
+                #no_repeat_ngram_size=3,
                 
                 # 길이 페널티 (요약 품질 향상)
-                length_penalty=1.2,   # 적절한 길이 유도
+                #length_penalty=1.2,   # 적절한 길이 유도
                 
                 # 토큰 설정
                 pad_token_id=self.tokenizer.pad_token_id,
@@ -95,17 +122,17 @@ class BartSummarizationModule(pl.LightningModule):
                             early_stopping=True,
                                                         
                             # 매우 보수적 샘플링
-                            do_sample=True,
-                            temperature=0.6,      # 낮은 창의성, 높은 정확성
-                            top_p=0.8,           # 상위 80%만 고려
-                            top_k=30,            # 제한적 후보
+                            # do_sample=False,
+                            # temperature=0.6,      # 낮은 창의성, 높은 정확성
+                            # top_p=0.8,           # 상위 80%만 고려
+                            # top_k=30,            # 제한적 후보
                             
                             # 반복 최소화
-                            repetition_penalty=1.1,
-                            no_repeat_ngram_size=3,
+                            #repetition_penalty=1.1,
+                            #no_repeat_ngram_size=3,
                             
                             # 길이 페널티 (요약 품질 향상)
-                            length_penalty=1.2,   # 적절한 길이 유도
+                            #length_penalty=1.0,   # 적절한 길이 유도
                             
                             # 토큰 설정
                             pad_token_id=self.tokenizer.pad_token_id,
@@ -182,20 +209,11 @@ class BartSummarizationModule(pl.LightningModule):
             replaced_predictions = [sentence.replace(token," ") for sentence in replaced_predictions]
             replaced_labels = [sentence.replace(token," ") for sentence in replaced_labels]
 
-        print('-'*150)
-        print(f"PRED: {replaced_predictions[0]}")
-        print(f"GOLD: {replaced_labels[0]}")
-        print('-'*150)
-        print(f"PRED: {replaced_predictions[1]}")
-        print(f"GOLD: {replaced_labels[1]}")
-        print('-'*150)
-        print(f"PRED: {replaced_predictions[2]}")
-        print(f"GOLD: {replaced_labels[2]}")
-
         for i in range(0, 10):
             print('-'*150)
             print(f"PRED: {replaced_predictions[i]}")
             print(f"GOLD: {replaced_labels[i]}")
+            print(f"similarity="+str(self.calculate_semantic_similarity(replaced_labels[i], replaced_predictions[i])))
 
 
         # 최종적인 ROUGE 점수를 계산합니다.
@@ -207,6 +225,37 @@ class BartSummarizationModule(pl.LightningModule):
     
     def configure_optimizers(self):
         optimizer = hydra.utils.instantiate(self.cfg.optimizer, params=self.parameters() )       
-        return [optimizer]
 
+        # 스케줄러 생성
+        scheduler = hydra.utils.instantiate(self.cfg.scheduler, optimizer=optimizer)
+        
+        return {
+            'optimizer': optimizer,
+            "lr_scheduler": {
+                "scheduler": scheduler,
+                "interval": "epoch",     # 에포크 단위 업데이트
+                "frequency": 1,          # 매 에포크마다
+                "monitor": None,         # 자동 스케줄링이므로 불필요
+                "strict": False,         # 모니터링 없으므로 False
+                "name": "cosine_annealing_lr"
+            }
+        }
 
+    def calculate_semantic_similarity(self, text1: str, text2: str) -> float:
+        """의미 기반 유사도 계산 (기존 Jaccard 대신)"""
+        
+        # 모델이 없다면 초기화
+        if not hasattr(self, 'similarity_model'):
+            print("유사도 측정 모델 로딩 (최초 1회)...")
+            self.similarity_model = SentenceTransformer('jhgan/ko-sroberta-multitask')
+        
+        # 문장을 임베딩 벡터로 변환
+        embeddings = self.similarity_model.encode([text1, text2])
+        
+        # 코사인 유사도 계산
+        vec1 = embeddings[0]
+        vec2 = embeddings[1]
+        
+        similarity = np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+        
+        return similarity
